@@ -1,0 +1,4 @@
+fastembed>=0.4
+fastapi>=0.110
+uvicorn[standard]>=0.29
+numpy
