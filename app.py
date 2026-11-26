@@ -415,6 +415,16 @@ def root():
     return {"status": "ok", "passages": N, "endpoint": "POST /query", "embedder": EMBEDDER}
 
 
+from collections import deque
+import time as _time
+QUERY_LOG = deque(maxlen=200)
+
+
+@app.get("/log")
+def get_log():
+    return list(QUERY_LOG)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -438,4 +448,7 @@ async def query(request: Request):
         result = await run_in_threadpool(answer_question, question, top_k)
     except Exception:
         result = abstain(0.0)
+    entry = {"t": _time.strftime("%H:%M:%S"), "body": body, "response": dict(result)}
+    QUERY_LOG.append(entry)
+    print("QUERY", json.dumps(entry), flush=True)
     return JSONResponse(dict(result))
